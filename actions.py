@@ -109,3 +109,9 @@ def magiskDelAllMod():
     print("\n命令来自于网络, 如有问题, 请联系 Magisk 的开发者或本软件开发者寻求更多信息!\n由于该操作风险较高, 您已经了解相关风险, 任何意料之外的问题开发者不承担责任!\n")
     system(AdbFullPath + ' shell magisk --remove-modules')
     print("\n")
+
+# 更多选项
+
+# 查看 ADB 信息
+def adbInfo():
+    system(AdbFullPath + ' --version')

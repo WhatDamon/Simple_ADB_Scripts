@@ -19,15 +19,15 @@ adbDownloadFrom = None
 
 # 主页面
 def mainPageDescription():
-    print("\033[32m简易 ADB 脚本集\033[0m\n========================================\n本软件能够简化您通过 adb 来进行软件激活与安装的过程,\n软件正在开发当中, 目前为止有很多软件还不能通过本软件进行激活,\n软件可能还会存在一些严重的 BUG 需要后期修复!\n建议在激活或者安装软件前使用第一项功能验证是否成功连接上您的设备.\n\033[33m注意: 目前只支持 USB 调试模式! 使用该软件前请确保设备可以被识别, 搞机有风险, 请谨慎操作.\033[0m\n本软件使用 MIT 协议开源.\n版本: 1.0.0_commit5\n")
+    print("\033[32m简易 ADB 脚本集\033[0m\n========================================\n本软件能够简化您通过 adb 来进行软件激活与安装的过程,\n软件正在开发当中, 目前为止有很多软件还不能通过本软件进行激活,\n软件可能还会存在一些严重的 BUG 需要后期修复!\n建议在激活或者安装软件前使用第一项功能验证是否成功连接上您的设备.\n\033[33m注意: 目前只支持 USB 调试模式! 使用该软件前请确保设备可以被识别, 搞机有风险, 请谨慎操作.\033[0m\n本软件使用 MIT 协议开源.\n版本: 1.0.0_commit6\n")
     print("\033[34mADB 主程序位置: \033[0m", AdbFullPath)
     print("\033[34m运行系统平台: \033[0m", platform(), "-", os.name, "-", sys.platform, "-", machine(), "\n", sep = '')
     mainPage()
 
 # 启动选择项
 def mainPage():
-    print("请选择: \n1. 查看设备列表\n2. 激活软件\n3. 安装 & 卸载软件\n4. 系统优化\n5. Magisk 操作\n6. 重启手机\n7. 退出\n")
-    choice = input("请输入选项对应数字并回车(1~7): ")
+    print("请选择: \n1. 查看设备列表\n2. 激活软件\n3. 安装 & 卸载软件\n4. 系统优化\n5. Magisk 操作\n6. 系统更新配置\n7. 重启手机\n8. 更多选项\n9. 退出\n")
+    choice = input("请输入选项对应数字并回车(1~9): ")
     global adbRunFlag
     if choice == "1":
         checkAdbUsbConnect()
@@ -44,8 +44,13 @@ def mainPage():
     elif choice == "5":
         magiskDescription()
     elif choice == "6":
-        rebootDescription()
+        print("\n\033[31m正在开发...\033[0m\n")
+        mainPage()
     elif choice == "7":
+        rebootDescription()
+    elif choice == "8":
+        moreOptionsDescription()
+    elif choice == "9":
         print("\n\033[34m正在退出......\033[0m\n")
         if adbRunFlag == True:
             os.system('"' + AdbFullPath + '" kill-server')
@@ -266,6 +271,32 @@ def rebootPhCheck(way):
         rebootPhCheck()
     way = None
 
+# 更多选项描述
+def moreOptionsDescription():
+    print("\n\033[34m更多选项\033[0m\n========================================\n请从以下列表中选择您希望进行的操作\n")
+    moreOptions()
+
+# 重启手机选择项
+def moreOptions():
+    print("请选择: \n1. 查看 ADB 信息\n2. 重新下载 ADB\n2. 返回上级\n")
+    choice = input("请输入选项对应数字并回车(1~5): ")
+    if choice == "1":
+        print("\n")
+        actions.adbInfo()
+        print("\n")
+        moreOptions()
+    elif choice == "2":
+        rmtree(os.path.split(os.path.realpath(sys.argv[0]))[0] + "/platform-tools")
+        adbDownloadFromChoose()
+    elif choice == "5":
+        mainPageDescription()
+    else:
+        print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
+        moreOptions()
+    choice = None
+
+# ---------- #
+
 # 确认是否自动下载 ADB
 def downloadAdbOrNot():
     choice = input("请选择(y/N): ")
@@ -280,8 +311,6 @@ def downloadAdbOrNot():
         print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
         choice = None
         downloadAdbOrNot()
-
-# ---------- #
 
 # 选择 ADB 下载来源
 def adbDownloadFromChoose():
