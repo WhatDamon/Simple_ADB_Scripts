@@ -35,9 +35,7 @@ jobs:
         with:
           script-name: main.py
           onefile: true
-          low-memory: true
           standalone: true
-          enable-console: true
           access-token: ${{ secrets.NUITKA_COMMERCIAL_ACCESS_TOKEN }}
           # macos-create-app-bundle: ${{ runner.os == 'macOS' }}
           
