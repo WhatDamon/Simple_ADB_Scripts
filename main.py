@@ -5,6 +5,9 @@ from ctypes import windll
 from pathlib import Path
 from shutil import rmtree
 from math import floor
+from hashlib import md5
+
+# ---------- #
 
 # 变量初始化
 AdbFullPath = None
@@ -12,10 +15,19 @@ ApkPath = None
 adbRunFlag = False
 adbDownloadFrom = None
 
+# ---------- #
+
+# 主页面
+def mainPageDescription():
+    print("\033[32m简易 ADB 脚本集\033[0m\n========================================\n本软件能够简化您通过 adb 来进行软件激活与安装的过程,\n软件正在开发当中, 目前为止有很多软件还不能通过本软件进行激活,\n软件可能还会存在一些严重的 BUG 需要后期修复!\n建议在激活或者安装软件前使用第一项功能验证是否成功连接上您的设备.\n\033[33m注意: 目前只支持 USB 调试模式! 使用该软件前请确保设备可以被识别, 搞机有风险, 请谨慎操作.\033[0m\n本软件使用 MIT 协议开源.\n版本: 1.0.0_commit5\n")
+    print("\033[34mADB 主程序位置: \033[0m", AdbFullPath)
+    print("\033[34m运行系统平台: \033[0m", platform(), "-", os.name, "-", sys.platform, "-", machine(), "\n", sep = '')
+    mainPage()
+
 # 启动选择项
 def mainPage():
-    print("请选择: \n1. 查看设备列表\n2. 激活软件\n3. 安装软件\n4. 退出\n")
-    choice = input("请输入选项对应数字并回车(1~4): ")
+    print("请选择: \n1. 查看设备列表\n2. 激活软件\n3. 安装 & 卸载软件\n4. 系统优化\n5. Magisk 操作\n6. 重启手机\n7. 退出\n")
+    choice = input("请输入选项对应数字并回车(1~7): ")
     global adbRunFlag
     if choice == "1":
         checkAdbUsbConnect()
@@ -23,18 +35,24 @@ def mainPage():
         print("\n如果显示设备未认证, 请在先在手机内通过调试请求\n")
         mainPage()
     elif choice == "2":
-        activeApps()
+        activeAppsDescription()
     elif choice == "3":
         print("\n\033[31m正在开发...\033[0m\n")
         mainPage()
     elif choice == "4":
+        sysOptiDescription()
+    elif choice == "5":
+        magiskDescription()
+    elif choice == "6":
+        rebootDescription()
+    elif choice == "7":
         print("\n\033[34m正在退出......\033[0m\n")
         if adbRunFlag == True:
             os.system('"' + AdbFullPath + '" kill-server')
         exit()
     else:
         print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
-        mainPage()
+        mainPageDescription()
     choice = None
 
 # 激活软件描述
@@ -46,7 +64,6 @@ def activeAppsDescription():
 def activeApps():
     print("请选择: \n1. Shizuku\n2. Dhizuku\n3. 黑域 Brevent\n4. 冰箱 Ice Box\n5. 小黑屋\n6. Scene5\n7. 返回上级\n")
     choice = input("请输入选项对应数字并回车(1~7): ")
-    global adbRunFlag
     if choice == "1":
         checkAdbUsbConnect()
         actions.activeShizuku()
@@ -79,7 +96,6 @@ def activeApps():
 def breventCommandSelect():
     print("\n激活黑域有两种方式可选!\n\n请选择: \n1. 应用内提供方式\n2. 官网提供方式\n3. 放弃\n")
     choice = input("请输入选项对应数字并回车(1~3): ")
-    global adbRunFlag
     if choice == "1":
         checkAdbUsbConnect()
         actions.activeBreventS1()
@@ -99,7 +115,6 @@ def breventCommandSelect():
 def blackHouseCommandSelect():
     print("\n激活小黑屋有两种模式可选!\n\n请选择: \n1. 麦克斯韦妖模式\n2. 设备管理员模式\n3. 放弃\n")
     choice = input("请输入选项对应数字并回车(1~3): ")
-    global adbRunFlag
     if choice == "1":
         checkAdbUsbConnect()
         actions.activeBlackHouseS1()
@@ -115,29 +130,145 @@ def blackHouseCommandSelect():
         blackHouseCommandSelect()
     choice = None
 
-# Scene5 脚本存在检查
+# Scene5 脚本存在检查 & 校验
 def sceneScriptCheck():
-    if os.path.exists(os.path.split(os.path.realpath(sys.argv[0]))[0] + "/scripts/scene_adb_init.sh") == True:
-        actions.activeScene5
+    scriptPath = os.path.split(os.path.realpath(sys.argv[0]))[0] + "/scripts/scene_adb_init.sh"
+    if os.path.exists(scriptPath) == True:
+        with open(scriptPath, 'rb') as fp:
+            data = fp.read()
+        md5Data = md5(data).hexdigest()
+        if md5Data == 'e6ab442856912d8af60d98be2126c0d3':
+            actions.activeScene5()
+        else:
+            print("\n\033[31m错误: 文件校验失败\033[0m\n现有脚本文件 MD5 为:", md5Data, "\n为了您的设备安全, 停止执行, 如果原脚本已经失效, 请联系开发者或者向本项目仓库提交 PR 或 Issue!\n")
     else:
-        print("\033[31m错误: 找不到脚本文件\033[0m\n")
+        print("\n\033[31m错误: 找不到脚本文件\033[0m\n")
 
 # 检查 ADB USB 连接
 def checkAdbUsbConnect():
+    global adbRunFlag
     if adbRunFlag == False:
         os.system('"' + AdbFullPath + '" usb')
         adbRunFlag = True
 
-# 主页面
-def mainPageDescription():
-    print("\033[32m简易 ADB 脚本集\033[0m\n========================================\n本软件能够简化您通过 adb 来进行软件激活与安装的过程,\n软件正在开发当中, 目前为止有很多软件还不能通过本软件进行激活,\n软件可能还会存在一些严重的 BUG 需要后期修复!\n建议在激活或者安装软件前使用第一项功能验证是否成功连接上您的设备.\n\033[33m注意: 目前只支持 USB 调试模式! 使用该软件前请确保设备可以被识别.\033[0m\n版本: 1.0.0_build2\n")
-    print("\033[34mADB 主程序: \033[0m", AdbFullPath)
-    print("\033[34m运行系统平台: \033[0m", platform(), "-", os.name, "-", sys.platform, "-", machine(), "\n", sep = '')
-    mainPage()
+# 系统优化描述
+def sysOptiDescription():
+    print("\n\033[34m系统优化\033[0m\n========================================\n请从以下列表中选择您希望优化的系统\n该软件无法保证目前使用的的指令是否可以正常使用\n\033[31m存在风险! 谨慎操作\033[0m\n")
+    sysOpti()
+
+# 系统优化选择项
+def sysOpti():
+    print("请选择: \n1. MIUI\n2. 返回上级\n")
+    choice = input("请输入选项对应数字并回车(1~2): ")
+    if choice == "1":
+        miuiOptiCheck()
+        sysOpti()
+    elif choice == "2":
+        mainPageDescription()
+    else:
+        print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
+        sysOpti()
+    choice = None
+
+# MIUI系统优化前确定
+def miuiOptiCheck():
+    print("\n\033[33m警告:\033[0m\n操作不当可能会造成卡米、数据丢失等问题, 或者其他不可预料的后果!\n是否继续?\n\n\033[33m“y”代表“确定”,“N”代表“取消”,默认值为“N”\033[0m\n")
+    choice = input("请选择(y/N): ")
+    if choice == "y" or choice == "Y":
+        checkAdbUsbConnect()
+        actions.miuiOpti()
+        sysOpti()
+    elif choice == "N" or choice == "n" or choice == "":
+        print("\n")
+        sysOpti()
+    else:
+        print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
+        choice = None
+        miuiOptiCheck()
+
+# Magisk 操作描述
+def magiskDescription():
+    print("\n\033[34mMagisk 操作\033[0m\n========================================\n请从以下列表中选择您希望进行的操作\n该软件无法保证目前使用的的指令是否可以正常使用\n\033[31m涉及内核, 存在风险! 谨慎操作\033[0m\n")
+    magiskAction()
+
+# Magisk 操作选择项
+def magiskAction():
+    print("请选择: \n1. 删除所有模块 (可用于救砖)\n2. 返回上级\n")
+    choice = input("请输入选项对应数字并回车(1~2): ")
+    if choice == "1":
+        magiskDelModCheck()
+        sysOpti()
+    elif choice == "2":
+        mainPageDescription()
+    else:
+        print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
+        sysOpti()
+    choice = None
+
+# Magisk 删除模块前前确定
+def magiskDelModCheck():
+    print("\n\033[33m警告:\033[0m\n涉及系统内核, 操作不当可能会导致设备永久变砖, 或者其他不可预料的后果!\n是否继续?\n\n\033[33m“y”代表“确定”,“N”代表“取消”,默认值为“N”\033[0m\n")
+    choice = input("请选择(y/N): ")
+    if choice == "y" or choice == "Y":
+        checkAdbUsbConnect()
+        actions.magiskDelAllMod()
+        magiskAction()
+    elif choice == "N" or choice == "n" or choice == "":
+        print("\n")
+        magiskAction()
+    else:
+        print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
+        choice = None
+        magiskDelModCheck()
+
+# 重启描述
+def rebootDescription():
+    print("\n\033[34m重启手机\033[0m\n========================================\n请从以下列表中选择您希望的手机重启方案\n")
+    rebootPh()
+
+# 重启手机选择项
+def rebootPh():
+    print("请选择: \n1. 普通重启\n2. 重启到 Recovery\n3. 重启到 Fastboot\n4. 重启到高通 EDL 紧急刷机模式 (9008)\n5. 返回上级\n")
+    choice = input("请输入选项对应数字并回车(1~5): ")
+    if choice == "1":
+        rebootPhCheck(0)
+        rebootPh()
+    elif choice == "2":
+        rebootPhCheck(1)
+        rebootPh()
+    elif choice == "3":
+        rebootPhCheck(2)
+        rebootPh()
+    elif choice == "4":
+        rebootPhCheck(3)
+        rebootPh()
+    elif choice == "5":
+        mainPageDescription()
+    else:
+        print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
+        rebootPh()
+    choice = None
+
+# 重启手机前优化前确定
+def rebootPhCheck(way):
+    print("\n请确保手机重启前已经保存了所有资料\n是否继续?\n\n\033[33m“y”代表“确定”,“N”代表“取消”,默认值为“N”\033[0m\n")
+    choice = input("请选择(y/N): ")
+    if choice == "y" or choice == "Y":
+        checkAdbUsbConnect()
+        actions.reboot(way)
+        rebootPh()
+    elif choice == "N" or choice == "n" or choice == "":
+        print("\n")
+        rebootPh()
+    else:
+        print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
+        choice = None
+        rebootPhCheck()
+    way = None
 
 # 确认是否自动下载 ADB
 def downloadAdbOrNot():
-    choice = input("请选择(y/N):")
+    choice = input("请选择(y/N): ")
     if choice == "y" or choice == "Y":
         adbDownloadFromChoose()
     elif choice == "N" or choice == "n" or choice == "":
@@ -149,6 +280,8 @@ def downloadAdbOrNot():
         print("\n\033[31m输入的内容不合法, 请重新输入!\033[0m\n")
         choice = None
         downloadAdbOrNot()
+
+# ---------- #
 
 # 选择 ADB 下载来源
 def adbDownloadFromChoose():
@@ -231,6 +364,7 @@ def downloadAdb():
         percent = percent * 100
         progressbar(percent, speedStr)
     
+    # 下载前准备
     global adbDownloadFrom
     if adbDownloadFrom == "1":
         if sys.platform.startswith('win'):
@@ -279,6 +413,8 @@ def downloadAdb():
         if adbRunFlag == True:
             os.system('"' + AdbFullPath + '" kill-server')
         exit()
+
+# ---------- #
 
 # 启动脚本 & ADB 存在检测
 def start():
