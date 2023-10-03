@@ -1,7 +1,6 @@
 # 导入模块
 import os, sys, urllib.request, zipfile, time, actions
 from platform import platform, machine
-from ctypes import windll
 from pathlib import Path
 from shutil import rmtree
 from math import floor
@@ -19,10 +18,10 @@ adbDownloadFrom = None
 
 # 主页面
 def mainPageDescription():
-    print("\033[32m简易 ADB 脚本集\033[0m\n========================================\n本软件能够简化您通过 adb 来进行软件激活与安装的过程,\n软件正在开发当中, 目前为止有很多软件还不能通过本软件进行激活,\n软件可能还会存在一些严重的 BUG 需要后期修复!\n建议在激活或者安装软件前使用第一项功能验证是否成功连接上您的设备.\n\033[33m注意: 目前只支持 USB 调试模式! 使用该软件前请确保设备可以被识别, 搞机有风险, 请谨慎操作.\033[0m\n本软件使用 MIT 协议开源.\n版本: 1.0.0_commit6\n")
+    print("\033[32m简易 ADB 脚本集\033[0m\n========================================\n本软件能够简化您通过 adb 来进行软件激活与安装的过程,\n软件正在开发当中, 目前为止有很多软件还不能通过本软件进行激活,\n软件可能还会存在一些严重的 BUG 需要后期修复!\n建议在激活或者安装软件前使用第一项功能验证是否成功连接上您的设备.\n\033[33m注意: 目前只支持 USB 调试模式! 使用该软件前请确保设备可以被识别, 搞机有风险, 请谨慎操作.\033[0m\n本软件使用 MIT 协议开源.\n版本: 1.0.0_commit7\n")
     print("\033[34mADB 主程序位置: \033[0m", AdbFullPath)
     print("\033[34m运行系统平台: \033[0m", platform(), "-", os.name, "-", sys.platform, "-", machine(), "\n", sep = '')
-    mainPage()
+    mainPage() 
 
 # 启动选择项
 def mainPage():
@@ -278,7 +277,7 @@ def moreOptionsDescription():
 
 # 重启手机选择项
 def moreOptions():
-    print("请选择: \n1. 查看 ADB 信息\n2. 重新下载 ADB\n2. 返回上级\n")
+    print("请选择: \n1. 查看 ADB 信息\n2. 重新下载 ADB\n3. 返回上级\n")
     choice = input("请输入选项对应数字并回车(1~5): ")
     if choice == "1":
         print("\n")
@@ -453,6 +452,7 @@ def start():
     if sys.platform.startswith('win'):
         AdbPath = os.path.split(os.path.realpath(sys.argv[0]))[0] + "\\platform-tools"
         AdbFullPath = AdbPath + "\\adb.exe"
+        from ctypes import windll
         windll.kernel32.SetConsoleTitleW("简易 ADB 脚本集")
     elif sys.platform.startswith('darwin') or sys.platform.startswith('linux'):
         AdbPath = os.path.split(os.path.realpath(sys.argv[0]))[0] + "/platform-tools"

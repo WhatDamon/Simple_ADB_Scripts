@@ -1,0 +1,29 @@
+name: Pyinstaller
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+
+jobs:
+    pyinstaller-build:
+      runs-on: [macos-latest, ubuntu-latest, windows-latest]
+
+      steps:
+        - name: Create Executable
+          uses: sayyid5416/pyinstaller@v1
+          with:
+            python_ver: '3.10'
+            options: --F, --c
+
+        - name: "Upload Artifacts"
+          uses: actions/upload-artifact@v3
+          with:
+            name: ${{ runner.os }} Build
+            path: |
+              dist/*
